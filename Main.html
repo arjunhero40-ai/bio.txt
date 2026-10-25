@@ -1,1 +1,280 @@
-.gg
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>vxd.exe</title>
+<style>
+:root{--bg:#0e0a1a;--fg:#f1ecff;--mut:#9a90bd;--acc:#b36bff;--card:rgba(255,255,255,.06);--blur:14px;--glow:0.6;--r:18px}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font-family:"Segoe UI",system-ui,sans-serif;overflow-x:hidden;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0)}
+#bg{position:fixed;inset:0;z-index:0;background:radial-gradient(circle at 20% 15%,#2b1456,transparent 55%),radial-gradient(circle at 85% 85%,#4a1250,transparent 50%),var(--bg);background-size:cover;background-position:center}
+#fx{position:fixed;inset:0;z-index:1;pointer-events:none}
+main{position:relative;z-index:2;min-height:100%;display:grid;place-items:center;padding:24px}
+.card{width:min(420px,100%);padding:28px 24px;border-radius:var(--r);background:var(--card);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));border:1px solid rgba(255,255,255,.12);box-shadow:0 0 calc(60px*var(--glow)) color-mix(in srgb,var(--acc) 45%,transparent);text-align:center;transition:transform .15s}
+.av{width:104px;height:104px;border-radius:50%;object-fit:cover;border:2px solid var(--acc);box-shadow:0 0 calc(30px*var(--glow)) var(--acc);background:#222}
+h1{margin:14px 0 4px;font-size:1.7rem;letter-spacing:.5px;text-shadow:0 0 calc(18px*var(--glow)) var(--acc)}
+.bio{color:var(--mut);min-height:1.4em;margin:0 0 16px;white-space:pre-wrap}
+.links{display:grid;gap:10px}
+.links a{display:block;padding:12px;border-radius:12px;color:var(--fg);text-decoration:none;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);transition:background .2s,transform .2s}
+.links a:hover{background:color-mix(in srgb,var(--acc) 30%,transparent);transform:translateY(-2px)}
+.dc{display:none;margin:0 0 16px;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.3);text-align:left;font-size:.9rem;align-items:center;gap:10px}
+.dc.on{display:flex}
+.dc i{width:10px;height:10px;border-radius:50%;background:#777;flex:none}
+.views{margin-top:16px;color:var(--mut);font-size:.8rem}
+#adminBtn{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));z-index:20;width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.45);color:var(--mut);cursor:pointer;font-size:15px}
+#adminBtn:hover,#adminBtn:focus-visible{color:var(--fg);outline:2px solid var(--acc)}
+.modal{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.6);display:none;place-items:center;padding:16px}
+.modal.open{display:grid}
+.box{width:min(400px,100%);max-height:90vh;overflow:auto;background:#17102b;border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:20px}
+.box h2{margin:0 0 12px;font-size:1.1rem}
+label{display:block;margin:10px 0 4px;color:var(--mut);font-size:.82rem}
+input,textarea,select{width:100%;padding:9px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:var(--fg);font:inherit}
+input[type=color]{padding:2px;height:36px}
+input[type=range]{padding:0}
+.row{display:flex;gap:8px;margin-top:14px}
+button.b{flex:1;padding:10px;border-radius:10px;border:0;background:var(--acc);color:#14041f;font-weight:600;cursor:pointer}
+button.g{background:rgba(255,255,255,.1);color:var(--fg)}
+.err{color:#ff8da1;font-size:.85rem;min-height:1.2em;margin-top:8px}
+.tabs{display:flex;gap:6px;margin-bottom:6px}
+.tabs button{flex:1;padding:8px;border-radius:8px;border:0;background:rgba(255,255,255,.08);color:var(--fg);cursor:pointer}
+.tabs button.on{background:var(--acc);color:#14041f}
+.chk{display:flex;align-items:center;gap:8px;margin:8px 0}
+.chk input{width:auto}
+#audBtn{position:fixed;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));z-index:20;min-width:34px;height:34px;padding:0 10px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.45);color:var(--mut);cursor:pointer;display:none}
+#audBtn:hover,#audBtn:focus-visible{color:var(--fg);outline:2px solid var(--acc)}
+#custom{margin-top:14px}
+.tabs button{font-size:.78rem;padding:8px 2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="bg"></div><canvas id="fx"></canvas>
+<main><div class="card" id="card">
+  <img class="av" id="av" alt="">
+  <h1 id="name"></h1>
+  <p class="bio" id="bio"></p>
+  <div class="dc" id="dc"><i id="dcDot"></i><span id="dcTxt"></span></div>
+  <div class="links" id="links"></div>
+  <div id="custom"></div>
+  <div class="views" id="views"></div>
+</div></main>
+
+<audio id="aud" loop preload="none"></audio>
+<button id="audBtn" aria-label="Play or pause music">▶</button>
+<button id="adminBtn" aria-label="Admin" title="Admin">⚙</button>
+
+<div class="modal" id="login"><div class="box">
+  <h2>Admin login</h2>
+  <label for="u">Username</label><input id="u" autocomplete="username">
+  <label for="p">Password</label><input id="p" type="password" autocomplete="current-password">
+  <div class="err" id="lerr"></div>
+  <div class="row"><button class="b g" id="lcancel">Cancel</button><button class="b" id="lgo">Log in</button></div>
+</div></div>
+
+<div class="modal" id="panel"><div class="box">
+  <h2>vxd.exe admin</h2>
+  <div class="tabs"><button data-t="t1" class="on">Profile</button><button data-t="t2">Discord</button><button data-t="t3">Effects</button><button data-t="t4">Audio</button><button data-t="t5">Custom</button></div>
+  <div id="t1">
+    <label>Display name</label><input id="f_name">
+    <label>Bio</label><textarea id="f_bio" rows="3"></textarea>
+    <label>Avatar URL</label><input id="f_av" placeholder="https://...">
+    <label>Background image URL (optional)</label><input id="f_bg" placeholder="https://...">
+    <label>Links (one per line: Label | URL)</label><textarea id="f_links" rows="4"></textarea>
+  </div>
+  <div id="t2" hidden>
+    <label>Discord user ID</label><input id="f_did" inputmode="numeric" placeholder="e.g. 123456789012345678">
+    <p style="color:var(--mut);font-size:.82rem">Shows your live status and activity using the public Lanyard service. Join discord.gg/lanyard once so it can see your presence.</p>
+  </div>
+  <div id="t3" hidden>
+    <label>Accent color</label><input type="color" id="f_acc">
+    <label>Background color</label><input type="color" id="f_bgc">
+    <label>Particles</label>
+    <select id="f_part"><option value="none">None</option><option value="stars">Stars</option><option value="snow">Snow</option><option value="rain">Rain</option><option value="fire">Embers</option></select>
+    <label>Card glow</label><input type="range" id="f_glow" min="0" max="1.5" step=".05">
+    <label>Card blur</label><input type="range" id="f_blur" min="0" max="30">
+    <label>Corner roundness</label><input type="range" id="f_r" min="0" max="36">
+    <div class="chk"><input type="checkbox" id="f_tilt"><span>3D tilt on hover</span></div>
+    <div class="chk"><input type="checkbox" id="f_type"><span>Typewriter bio</span></div>
+    <div class="chk"><input type="checkbox" id="f_trail"><span>Cursor trail</span></div>
+    <div class="chk"><input type="checkbox" id="f_views"><span>Show view counter</span></div>
+  </div>
+  <div id="t4" hidden>
+    <label>Music URL (direct .mp3 / .ogg / .wav link)</label><input id="f_aud" placeholder="https://.../track.mp3">
+    <label>Track label (shown on the play button tooltip)</label><input id="f_atitle">
+    <label>Volume</label><input type="range" id="f_vol" min="0" max="1" step=".05">
+    <div class="chk"><input type="checkbox" id="f_aplay"><span>Start on first tap or click</span></div>
+    <p style="color:var(--mut);font-size:.82rem">Browsers block sound until a visitor interacts with the page, so music starts after their first tap. Only use audio you have the rights to.</p>
+  </div>
+  <div id="t5" hidden>
+    <label>Browser tab title</label><input id="f_title" placeholder="vxd.exe">
+    <label>Custom HTML block (shown under your links)</label><textarea id="f_html" rows="3" placeholder="&lt;p&gt;anything you want&lt;/p&gt;"></textarea>
+    <label>Custom CSS</label><textarea id="f_css" rows="4" placeholder=".card{border-width:2px}"></textarea>
+    <p style="color:var(--mut);font-size:.82rem">Scripts and event handlers are stripped from the HTML block.</p>
+  </div>
+  <div class="row"><button class="b g" id="pout">Log out</button><button class="b g" id="pexp">Copy config</button><button class="b" id="psave">Save</button></div>
+  <div class="err" id="perr"></div>
+</div></div>
+
+<script>
+// ---- Default public config (what visitors see). Paste exported config here to publish your edits. ----
+const DEFAULT = {name:"vxd.exe",bio:"welcome to my corner of the internet",avatar:"",bg:"",links:[{l:"Discord",u:"https://discord.com"}],did:"",acc:"#b36bff",bgc:"#0e0a1a",part:"stars",glow:.6,blur:14,r:18,tilt:true,type:true,trail:false,views:true,audio:"",atitle:"",vol:.5,aplay:true,title:"",html:"",css:""};
+// SHA-256 of "username:password" (no plaintext stored)
+const AUTH_HASH="ba436e7149d04850a28a29b3655c41811bccba6ba1400655ee035f50ade9bac1";
+
+const $=id=>document.getElementById(id);
+let cfg=Object.assign({},DEFAULT);
+let isAdmin=false;
+try{const s=localStorage.getItem("vxd_cfg");if(s)cfg=Object.assign({},DEFAULT,JSON.parse(s))}catch(e){}
+let VIEWS=1;try{VIEWS=(+localStorage.getItem("vxd_v")||0)+1;localStorage.setItem("vxd_v",VIEWS)}catch(e){}
+
+function apply(){
+  const rs=document.documentElement.style;
+  rs.setProperty("--acc",cfg.acc);rs.setProperty("--bg",cfg.bgc);rs.setProperty("--glow",cfg.glow);rs.setProperty("--blur",cfg.blur+"px");rs.setProperty("--r",cfg.r+"px");
+  $("bg").style.backgroundImage=cfg.bg?`url("${cfg.bg.replace(/"/g,"")}")`:"";
+  $("name").textContent=cfg.name;
+  $("av").src=cfg.avatar||"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#2a1a4a"/><text x="50" y="62" font-size="34" text-anchor="middle" fill="#b36bff" font-family="monospace">vxd</text></svg>');
+  $("av").style.display="";
+  const L=$("links");L.innerHTML="";
+  cfg.links.forEach(x=>{if(!/^https?:\/\//i.test(x.u))return;const a=document.createElement("a");a.href=x.u;a.target="_blank";a.rel="noopener noreferrer";a.textContent=x.l;L.appendChild(a)});
+  document.title=cfg.title||cfg.name;
+  let st=$("ccss");if(!st){st=document.createElement("style");st.id="ccss";document.head.appendChild(st)}st.textContent=cfg.css||"";
+  $("custom").innerHTML=(cfg.html||"").replace(/<\s*\/?\s*(script|iframe|object|embed)[^>]*>/gi,"").replace(/\son\w+\s*=/gi," data-x=");
+  setupAudio();
+  typeBio();particles();
+  $("views").textContent="";
+  if(cfg.views)$("views").textContent="👁 "+VIEWS+" (this browser)";
+  lanyard();
+}
+let typeT;
+function typeBio(){clearInterval(typeT);const b=$("bio");if(!cfg.type){b.textContent=cfg.bio;return}b.textContent="";let i=0;typeT=setInterval(()=>{b.textContent=cfg.bio.slice(0,++i);if(i>=cfg.bio.length)clearInterval(typeT)},45)}
+
+// Discord presence via Lanyard
+let ws,hb;
+function lanyard(){
+  if(ws){try{ws.close()}catch(e){}}clearInterval(hb);$("dc").classList.remove("on");
+  if(!/^\d{15,22}$/.test(cfg.did))return;
+  try{
+    ws=new WebSocket("wss://api.lanyard.rest/socket");
+    ws.onmessage=m=>{const d=JSON.parse(m.data);
+      if(d.op===1){hb=setInterval(()=>ws.send(JSON.stringify({op:3})),d.d.heartbeat_interval);ws.send(JSON.stringify({op:2,d:{subscribe_to_id:cfg.did}}))}
+      if(d.op===0)showDc(d.d)};
+  }catch(e){}
+}
+function showDc(d){
+  const c={online:"#3ba55d",idle:"#faa61a",dnd:"#ed4245",offline:"#777"};
+  const name=d.discord_user?(d.discord_user.global_name||d.discord_user.username):"Discord";
+  const act=(d.activities||[]).find(a=>a.type!==4);
+  $("dcDot").style.background=c[d.discord_status]||"#777";
+  $("dcTxt").textContent=name+" · "+d.discord_status+(act?" · "+act.name:"");
+  $("dc").classList.add("on");
+}
+
+// Particles + cursor trail
+const cv=$("fx"),ctx=cv.getContext("2d");let P=[],raf,trail=[];
+function size(){cv.width=innerWidth;cv.height=innerHeight}addEventListener("resize",size);size();
+function particles(){
+  cancelAnimationFrame(raf);P=[];const t=cfg.part;if(t==="none"&&!cfg.trail){ctx.clearRect(0,0,cv.width,cv.height);return}
+  if(matchMedia("(prefers-reduced-motion:reduce)").matches){ctx.clearRect(0,0,cv.width,cv.height);return}
+  const n=t==="none"?0:90;
+  for(let i=0;i<n;i++)P.push({x:Math.random()*cv.width,y:Math.random()*cv.height,s:Math.random()*2+.5,v:Math.random()*1+.3,o:Math.random()});
+  (function loop(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    P.forEach(p=>{
+      if(t==="stars"){p.o+=.02;ctx.globalAlpha=.4+.6*Math.abs(Math.sin(p.o));ctx.fillStyle="#fff";ctx.fillRect(p.x,p.y,p.s,p.s)}
+      else if(t==="snow"){p.y+=p.v;p.x+=Math.sin(p.y/30)*.5;ctx.globalAlpha=.8;ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(p.x,p.y,p.s,0,7);ctx.fill()}
+      else if(t==="rain"){p.y+=p.v*9;ctx.globalAlpha=.5;ctx.strokeStyle=cfg.acc;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x,p.y+10);ctx.stroke()}
+      else if(t==="fire"){p.y-=p.v;p.x+=Math.sin(p.y/20)*.6;ctx.globalAlpha=.8;ctx.fillStyle=cfg.acc;ctx.beginPath();ctx.arc(p.x,p.y,p.s,0,7);ctx.fill()}
+      if(p.y>cv.height+10)p.y=-10;if(p.y<-10)p.y=cv.height+10;
+    });
+    if(cfg.trail){trail.forEach(q=>{q.l-=.04;if(q.l<=0)return;ctx.globalAlpha=q.l;ctx.fillStyle=cfg.acc;ctx.beginPath();ctx.arc(q.x,q.y,Math.max(.1,5*q.l),0,7);ctx.fill()});trail=trail.filter(q=>q.l>0)}
+    ctx.globalAlpha=1;
+    raf=requestAnimationFrame(loop);
+  })();
+}
+addEventListener("pointermove",e=>{if(cfg.trail){trail.push({x:e.clientX,y:e.clientY,l:1});if(trail.length>80)trail.shift()}});
+
+// Tilt
+const card=$("card");
+card.addEventListener("pointermove",e=>{if(!cfg.tilt)return;const r=card.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;card.style.transform=`perspective(700px) rotateY(${x*12}deg) rotateX(${-y*12}deg)`});
+card.addEventListener("pointerleave",()=>card.style.transform="");
+
+// Admin
+const K=[],H0=[];
+for(let n=2,c=0;c<64;n++){let p=1;for(let i=2;i*i<=n;i++)if(n%i===0){p=0;break}
+ if(p){if(c<8)H0[c]=(Math.pow(n,.5)%1)*4294967296|0;K[c]=(Math.pow(n,1/3)%1)*4294967296|0;c++}}
+function sha256js(str){
+  const m=[...new TextEncoder().encode(str)];const l=m.length*8;
+  m.push(0x80);while(m.length%64!==56)m.push(0);
+  const hi=Math.floor(l/4294967296);
+  for(let i=3;i>=0;i--)m.push((hi>>>(i*8))&255);
+  for(let i=3;i>=0;i--)m.push((l>>>(i*8))&255);
+  let h=H0.slice();
+  for(let o=0;o<m.length;o+=64){
+    const w=[];for(let i=0;i<16;i++)w[i]=(m[o+4*i]<<24)|(m[o+4*i+1]<<16)|(m[o+4*i+2]<<8)|m[o+4*i+3];
+    for(let i=16;i<64;i++){const a=w[i-15],b=w[i-2];
+      const s0=((a>>>7)|(a<<25))^((a>>>18)|(a<<14))^(a>>>3);
+      const s1=((b>>>17)|(b<<15))^((b>>>19)|(b<<13))^(b>>>10);
+      w[i]=(w[i-16]+s0+w[i-7]+s1)|0}
+    let [a,b,c,d,e,f,g,hh]=h;
+    for(let i=0;i<64;i++){
+      const S1=((e>>>6)|(e<<26))^((e>>>11)|(e<<21))^((e>>>25)|(e<<7));
+      const t1=(hh+S1+((e&f)^(~e&g))+K[i]+w[i])|0;
+      const S0=((a>>>2)|(a<<30))^((a>>>13)|(a<<19))^((a>>>22)|(a<<10));
+      const t2=(S0+((a&b)^(a&c)^(b&c)))|0;
+      hh=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0}
+    h=[h[0]+a|0,h[1]+b|0,h[2]+c|0,h[3]+d|0,h[4]+e|0,h[5]+f|0,h[6]+g|0,h[7]+hh|0]}
+  return h.map(x=>(x>>>0).toString(16).padStart(8,"0")).join("")}
+async function sha(s){
+  try{if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}}catch(e){}
+  return sha256js(s)}
+const open=id=>$(id).classList.add("open"),close=id=>$(id).classList.remove("open");
+$("adminBtn").onclick=()=>{isAdmin?(fill(),open("panel")):open("login")};
+$("lcancel").onclick=()=>close("login");
+let tries=0,lock=0;
+$("lgo").onclick=async()=>{
+  if(Date.now()<lock){$("lerr").textContent="Too many attempts. Wait a moment.";return}
+  const h=await sha($("u").value+":"+$("p").value);
+  if(h===AUTH_HASH){isAdmin=true;tries=0;$("p").value="";$("lerr").textContent="";close("login");fill();open("panel")}
+  else{tries++;$("lerr").textContent="Wrong username or password.";if(tries>=3){lock=Date.now()+30000;tries=0}}
+};
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["t1","t2","t3","t4","t5"].forEach(t=>$(t).hidden=t!==b.dataset.t)});
+function fill(){
+  $("f_name").value=cfg.name;$("f_bio").value=cfg.bio;$("f_av").value=cfg.avatar;$("f_bg").value=cfg.bg;
+  $("f_links").value=cfg.links.map(x=>x.l+" | "+x.u).join("\n");$("f_did").value=cfg.did;
+  $("f_acc").value=cfg.acc;$("f_bgc").value=cfg.bgc;$("f_part").value=cfg.part;$("f_glow").value=cfg.glow;$("f_blur").value=cfg.blur;$("f_r").value=cfg.r;
+  $("f_tilt").checked=cfg.tilt;$("f_type").checked=cfg.type;$("f_trail").checked=cfg.trail;$("f_views").checked=cfg.views;
+  $("f_aud").value=cfg.audio;$("f_atitle").value=cfg.atitle;$("f_vol").value=cfg.vol;$("f_aplay").checked=cfg.aplay;
+  $("f_title").value=cfg.title;$("f_html").value=cfg.html;$("f_css").value=cfg.css;
+}
+function read(){
+  return{name:$("f_name").value.trim()||"vxd.exe",bio:$("f_bio").value,avatar:$("f_av").value.trim(),bg:$("f_bg").value.trim(),
+   links:$("f_links").value.split("\n").map(s=>s.split("|").map(x=>x.trim())).filter(a=>a[0]&&a[1]).map(a=>({l:a[0],u:a[1]})),
+   did:$("f_did").value.trim(),acc:$("f_acc").value,bgc:$("f_bgc").value,part:$("f_part").value,glow:+$("f_glow").value,blur:+$("f_blur").value,r:+$("f_r").value,
+   tilt:$("f_tilt").checked,type:$("f_type").checked,trail:$("f_trail").checked,views:$("f_views").checked,
+   audio:$("f_aud").value.trim(),atitle:$("f_atitle").value.trim(),vol:+$("f_vol").value,aplay:$("f_aplay").checked,
+   title:$("f_title").value.trim(),html:$("f_html").value,css:$("f_css").value};
+}
+$("psave").onclick=()=>{if(!isAdmin)return;cfg=read();try{localStorage.setItem("vxd_cfg",JSON.stringify(cfg))}catch(e){}apply();$("perr").textContent="Saved.";};
+$("pexp").onclick=async()=>{if(!isAdmin)return;const j=JSON.stringify(read());try{await navigator.clipboard.writeText(j);$("perr").textContent="Config copied. Paste it over DEFAULT in the file to publish."}catch(e){$("perr").textContent=j}};
+$("pout").onclick=()=>{isAdmin=false;close("panel")};
+document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)m.classList.remove("open")}));
+
+// Audio
+const aud=$("aud"),abtn=$("audBtn");let armed=false;
+function setupAudio(){
+  if(!/^https?:\/\//i.test(cfg.audio||"")){aud.pause();abtn.style.display="none";aud.removeAttribute("src");return}
+  if(aud.getAttribute("src")!==cfg.audio){aud.pause();aud.src=cfg.audio;abtn.textContent="▶"}
+  aud.volume=cfg.vol;abtn.style.display="block";abtn.title=cfg.atitle||"Play music";
+  aud.onerror=()=>{abtn.title="Couldn't load this audio link"};
+  if(cfg.aplay&&!armed){armed=true;addEventListener("pointerdown",()=>{if(cfg.audio&&aud.paused)aud.play().catch(()=>{})},{once:true})}
+}
+abtn.onclick=()=>{aud.paused?aud.play().catch(()=>{}):aud.pause()};
+aud.onplay=()=>abtn.textContent="❚❚";aud.onpause=()=>abtn.textContent="▶";
+$("f_vol").addEventListener("input",e=>{aud.volume=+e.target.value});
+apply();
+</script>
+</body>
+  </html>
+  
